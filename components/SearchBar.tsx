@@ -7,19 +7,24 @@ const SearchBar: React.FC = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Implement search functionality here
     console.log('Searching for:', query);
   };
 
   return (
-    <form onSubmit={handleSearch}>
+    <form
+      onSubmit={handleSearch}
+      style={{ display: 'flex', flexDirection: 'column' }}
+    >
       <input
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search counties..."
+        style={{ marginBottom: '10px', padding: '5px' }}
       />
-      <button type="submit">Search</button>
+      <button type="submit" style={{ padding: '5px' }}>
+        Search
+      </button>
     </form>
   );
 };
