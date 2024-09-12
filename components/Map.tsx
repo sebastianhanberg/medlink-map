@@ -1,29 +1,31 @@
-'use client';
-
 import React from 'react';
-import dynamic from 'next/dynamic';
+import { County } from '../types/County';
 
-const MapContainer = dynamic(
-  () => import('react-leaflet').then((mod) => mod.MapContainer),
-  { ssr: false },
-);
-const TileLayer = dynamic(
-  () => import('react-leaflet').then((mod) => mod.TileLayer),
-  { ssr: false },
-);
+interface MapProps {
+  searchedCounty: County | null;
+  filters: { nationella: boolean; ingetAvtal: boolean };
+}
 
-const Map: React.FC = () => {
+const Map: React.FC<MapProps> = ({ searchedCounty, filters }) => {
+  if (typeof window === 'undefined') {
+    return null; // Return null on the server side
+  }
+
+  // Import Leaflet components only on the client side
+  const { MapContainer, TileLayer, GeoJSON, useMap } = require('react-leaflet');
+  const L = require('leaflet');
+
+  // ... rest of your Map component code ...
+
   return (
-    <div style={{ height: '500px', width: '100%' }}>
-      <MapContainer
-        center={[62.0, 15.0]}
-        zoom={5}
-        style={{ height: '100%', width: '100%' }}
-      >
-        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        {/* GeoJSON layer will be added here once we have the data */}
-      </MapContainer>
-    </div>
+    <MapContainer
+      center={[62.0, 15.0]}
+      zoom={5}
+      style={{ height: '100%', width: '100%' }}
+    >
+      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      {/* ... rest of your map JSX ... */}
+    </MapContainer>
   );
 };
 

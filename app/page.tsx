@@ -1,40 +1,56 @@
-import React from 'react';
+'use client';
+import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import SearchBar from '../components/SearchBar';
-import Map from '../components/Map';
-import InfoBox from '../components/InfoBox'; // new component for displaying county info
+import FilterModal from '../components/FilterModal';
+import CountyInfo from '../components/CountyInfo';
+import { County } from '../types/County';
+import { Button } from '@/components/ui/button';
 
-export default function Home() {
+// Dynamically import the Map component with no SSR
+const Map = dynamic(() => import('../components/Map'), { ssr: false });
+
+const MainPage: React.FC = () => {
+  const [searchedCounty, setSearchedCounty] = useState<County | null>(null);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    nationella: false,
+    ingetAvtal: false,
+  });
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   return (
-    <main
-      style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 3fr 1fr',
-        gridTemplateRows: 'auto 1fr',
-        height: '100vh',
-        gap: '10px',
-      }}
-    >
-      {/* First row */}
-      <header
-        style={{ gridColumn: '1 / 4', textAlign: 'center', padding: '10px 0' }}
-      >
-        <h1>Sweden Map Dashboard</h1>
+    <div className="flex flex-col h-screen">
+      <header className="p-4 bg-white shadow-md">
+        <div className="container mx-auto flex items-center justify-between">
+          <div className="flex-grow mr-4">
+            <SearchBar onSearch={setSearchedCounty} />
+          </div>
+          <Button onClick={() => setIsFilterModalOpen(true)}>Filter</Button>
+        </div>
       </header>
-
-      {/* Second row - Left column for search bar */}
-      <section style={{ gridColumn: '1 / 2', padding: '10px' }}>
-        <SearchBar />
-      </section>
-
-      {/* Second row - Center column for map */}
-      <section style={{ gridColumn: '2 / 3', padding: '10px' }}>
-        <Map />
-      </section>
-
-      {/* Second row - Right column for displaying county info */}
-      <section style={{ gridColumn: '3 / 4', padding: '10px' }}>
-        <InfoBox />
-      </section>
-    </main>
+      <main className="flex-grow flex">
+        <div className="w-2/5 p-4 overflow-auto">
+          <CountyInfo county={searchedCounty} />
+        </div>
+        <div className="w-3/5 p-4">
+          {isClient && (
+            <Map searchedCounty={searchedCounty} filters={filters} />
+          )}
+        </div>
+      </main>
+      <FilterModal
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        filters={filters}
+        setFilters={setFilters}
+      />
+    </div>
   );
-}
+};
+
+export default MainPage;
