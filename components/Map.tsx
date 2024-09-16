@@ -1,94 +1,3 @@
-// import React, { useEffect, useRef } from 'react';
-// import L from 'leaflet';
-// import 'leaflet/dist/leaflet.css';
-// import { County } from '../types/County';
-// import { Kommun } from '../types/Kommun';
-
-// interface MapProps {
-//   selectedLocation: County | Kommun | null;
-//   filters: { nationella: boolean; ingetAvtal: boolean };
-//   onLocationSelect: (location: County | Kommun) => void;  // Add this
-//   center: [number, number];  // Ensure this is a tuple type
-//   zoom: number;
-// }
-
-// const Map: React.FC<MapProps> = ({
-//   selectedLocation,
-//   filters,
-//   onLocationSelect,
-//   center,
-//   zoom,
-// }) => {
-//   const mapRef = useRef<L.Map | null>(null);
-//   const mapContainerRef = useRef<HTMLDivElement>(null);
-//   const markerRef = useRef<L.CircleMarker | null>(null);
-
-//   useEffect(() => {
-//     if (mapContainerRef.current && !mapRef.current) {
-//       mapRef.current = L.map(mapContainerRef.current).setView(center, zoom);
-
-//       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-//         attribution:
-//           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-//       }).addTo(mapRef.current);
-//     }
-
-//     return () => {
-//       if (mapRef.current) {
-//         mapRef.current.remove();
-//         mapRef.current = null;
-//       }
-//     };
-//   }, []);
-
-//   useEffect(() => {
-//     if (mapRef.current) {
-//       mapRef.current.setView(center, zoom);
-//     }
-//   }, [center, zoom]);
-
-//   useEffect(() => {
-//     if (mapRef.current && selectedLocation) {
-//       if (markerRef.current) {
-//         mapRef.current.removeLayer(markerRef.current);
-//       }
-  
-//       markerRef.current = L.circleMarker(
-//         selectedLocation.center as L.LatLngExpression,
-//         {
-//           radius: 28,
-//           fillColor: selectedLocation.hasAgreement ? '#34D399' : '#F87171', // Green for agreement, red for no agreement
-//           color: '#000',
-//           weight: 1,
-//           opacity: 1,
-//           fillOpacity: 0.8,
-//         },
-//       )
-//         .addTo(mapRef.current)
-//         .bindPopup(
-//           `
-//           <b>${selectedLocation.name}</b><br>
-          
-//           ${selectedLocation.hasAgreement ? 'Har avtal' : 'Inget avtal'}
-//           <br>
-//           ${selectedLocation.isRegion ? 'Region' : 'Kommun'}
-          
-//           ${selectedLocation.additionalInfo ? `<br>${selectedLocation.additionalInfo}` : ''}
-//         `,
-//         )
-//         .openPopup();
-  
-//       mapRef.current.setView(selectedLocation.center as L.LatLngExpression, zoom);
-//     }
-//   }, [selectedLocation, zoom]);
-
-//   return (
-//     <div ref={mapContainerRef} style={{ height: '100%', width: '100%' }} />
-//   );
-// };
-
-// export default Map;
-
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -135,10 +44,15 @@ const Map: React.FC<MapProps> = ({
     }
 
     locations.forEach((location) => {
-      const isSelected = selectedLocation && location.name === selectedLocation.name;
+      const isSelected =
+        selectedLocation && location.name === selectedLocation.name;
 
       // Define marker colors based on conditions
-      const fillColor = isSelected ? '#85C1E9' : (location.hasAgreement ? '#1E8449' : '#E74C3C');
+      const fillColor = isSelected
+        ? '#85C1E9'
+        : location.hasAgreement
+        ? '#1E8449'
+        : '#E74C3C';
       const markerSize = isSelected ? 18 : 10; // Larger if selected
       const borderColor = '#1B4F72'; // Darker border color for visibility
 
@@ -151,12 +65,18 @@ const Map: React.FC<MapProps> = ({
         fillOpacity: 0.8,
       };
 
-      const marker = L.circleMarker(location.center as L.LatLngExpression, markerOptions)
+      const marker = L.circleMarker(
+        location.center as L.LatLngExpression,
+        markerOptions,
+      )
         .on('click', () => {
           onLocationSelect(location);
           const currentZoom = mapRef.current?.getZoom();
           const newZoom = manualZoom ? currentZoom : 12; // Don't zoom out if the user has zoomed manually
-          mapRef.current?.setView(location.center as L.LatLngExpression, newZoom); // Set zoom level to 12
+          mapRef.current?.setView(
+            location.center as L.LatLngExpression,
+            newZoom,
+          ); // Set zoom level to 12
           marker.openPopup(); // Open the popup on first click
         })
         .on('mouseover', () => {
@@ -183,7 +103,9 @@ const Map: React.FC<MapProps> = ({
           html: iconHtml,
           className: '',
         });
-        L.marker(location.center as L.LatLngExpression, { icon }).addTo(markersLayer.current!);
+        L.marker(location.center as L.LatLngExpression, { icon }).addTo(
+          markersLayer.current!,
+        );
       }
 
       markersLayer.current?.addLayer(marker);
@@ -195,7 +117,10 @@ const Map: React.FC<MapProps> = ({
     if (selectedLocation && mapRef.current) {
       const currentZoom = mapRef.current?.getZoom();
       const newZoom = manualZoom ? currentZoom : 12; // Set zoom level to 12, or retain manual zoom
-      mapRef.current.setView(selectedLocation.center as L.LatLngExpression, newZoom); // Zoom in on the selected location
+      mapRef.current.setView(
+        selectedLocation.center as L.LatLngExpression,
+        newZoom,
+      ); // Zoom in on the selected location
     }
   }, [selectedLocation]);
 
