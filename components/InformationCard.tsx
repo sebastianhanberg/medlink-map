@@ -41,16 +41,32 @@ const InformationCard: React.FC<InformationCardProps> = ({
     setEditedLocation({ ...editedLocation, [e.target.name]: e.target.value });
   };
 
+  // Toggle hasAgreement when clicked
+  const toggleHasAgreement = () => {
+    setEditedLocation({
+      ...editedLocation,
+      hasAgreement: !editedLocation.hasAgreement,
+    });
+  };
+
   return (
     <div className="bg-white p-4 rounded-lg shadow">
       {isEditing ? (
         <>
-          <Input
-            name="name"
-            value={editedLocation.name}
-            onChange={handleChange}
-            className="mb-2"
-          />
+          <h2 className="text-xl font-bold mb-2">{location.name}</h2>
+
+          <p className="mb-4">
+            <span>Har avtal: </span>
+            <Button
+              className={`ml-2 text-white rounded ${
+                editedLocation.hasAgreement ? 'bg-green-500' : 'bg-red-500'
+              }`}
+              onClick={toggleHasAgreement}
+            >
+              {editedLocation.hasAgreement ? 'Ja' : 'Nej'}
+            </Button>
+          </p>
+
           <Textarea
             name="additionalInfo"
             value={editedLocation.additionalInfo || ''}
@@ -62,11 +78,22 @@ const InformationCard: React.FC<InformationCardProps> = ({
       ) : (
         <>
           <h2 className="text-xl font-bold mb-2">{location.name}</h2>
-          <p className="text-sm text-gray-600">{location.isRegion ? 'Region' : 'Kommun'}</p>
-          <p className={`font-bold ${location.hasAgreement ? 'text-teal-700' : 'text-red-500'}`}>
-            {location.hasAgreement ? 'Har avtal' : 'Inget avtal'}
+          <p className="text-sm text-gray-600">
+            {location.isRegion ? 'Region' : 'Kommun'}
           </p>
-          {location.additionalInfo && <p className="mb-2">{location.additionalInfo}</p>}
+          <p className="font-bold">
+            Har avtal:{" "}
+            <span
+              className={`${
+                location.hasAgreement ? 'text-green-500' : 'text-red-500'
+              }`}
+            >
+              {location.hasAgreement ? 'Ja' : 'Nej'}
+            </span>
+          </p>
+          {location.additionalInfo && (
+            <p className="mb-2">{location.additionalInfo}</p>
+          )}
           <Button onClick={handleEdit}>Ändra</Button>
         </>
       )}
